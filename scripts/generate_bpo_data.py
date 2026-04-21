@@ -109,7 +109,7 @@ df["Queue_Wait_Time"] = df["Queue_Wait_Time"].astype(int)
 output_path = "data/bpo_call_center_data.csv"
 df.to_csv(output_path, index=False)
 
-print("\n✅ DATA GENERATION COMPLETE")
+print("\n Data generated")
 print("----------------------------")
 print(f"Rows generated: {len(df)}")
 print(f"Date range: {df['Timestamp'].min()} → {df['Timestamp'].max()}")
@@ -122,5 +122,5 @@ tech_drop_rate = df[
     df["Issue_Category"] == "Tech Support"
 ]["Resolution_Status"].value_counts(normalize=True)
 
-print("\n📊 Tech Support Resolution Distribution:")
+print("\n Tech Support Resolution Distribution:")
 print(tech_drop_rate)
