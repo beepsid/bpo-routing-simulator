@@ -20,5 +20,5 @@ drop_rate=weekly_distribution['Dropped']
 
 drop_rate = drop_rate.sort_index()
 
-print("\n📊 Weekly Drop Rate (Tech Support):\n")
+print("\n Weekly Drop Rate (Tech Support):\n")
 print(drop_rate)
