@@ -1,13 +1,19 @@
 import pandas as pd
 from sqlalchemy import create_engine
 from sqlalchemy.engine import URL
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+password = os.getenv("db_password")
 
 df = pd.read_csv("data/bpo_call_center_data.csv")
 
 url = URL.create(
     drivername="mysql+pymysql",
     username="root",
-    password="tomioka@141025", 
+    password=os.getenv('db_password'), 
     host="localhost",
     database="bpo_project"
 )
@@ -28,9 +34,8 @@ df = df.rename(columns={
 df.to_sql(
     name='call_center_logs',
     con=engine,
-    if_exists='append',
+    if_exists='replace',
     index=False
 )
 
 print('Loaded!')
-
