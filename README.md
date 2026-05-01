@@ -1,6 +1,6 @@
 # BPO Call Center Analytics
 
-A data analytics project simulating a Business Process Outsourcing (BPO) call center environment. It covers synthetic data generation, MySQL storage, SQL-based KPI analysis, statistical anomaly detection, and a Power BI dashboard.
+A data analytics project simulating a Business Process Outsourcing (BPO) call center environment. It covers synthetic data generation, a normalized MySQL schema, SQL-based KPI analysis, statistical anomaly detection, and a Power BI dashboard.
 
 ---
 
@@ -9,7 +9,9 @@ A data analytics project simulating a Business Process Outsourcing (BPO) call ce
 ```
 bpo-routing-simulator/
 ├── data/
-│   └── bpo_call_center_data.csv
+│   ├── bpo_call_center_data.csv
+│   ├── agents.csv
+│   └── categories.csv
 ├── scripts/
 │   ├── generate_bpo_data.py
 │   ├── load_to_mysql.py
@@ -34,17 +36,41 @@ bpo-routing-simulator/
 
 ### `data/bpo_call_center_data.csv`
 
-The main dataset used across all scripts and the dashboard. Contains 50,000 synthetic records with the following columns:
+The main call log dataset — 50,000 synthetic records spanning 90 days.
 
 | Column | Description |
 |---|---|
-| `Call_ID` | Unique call identifier (e.g. C000001) |
+| `Call_ID` | Unique call identifier (C000001–C050000) |
 | `Timestamp` | Date and time of the call |
 | `Agent_ID` | Agent who handled the call (A001–A100) |
-| `Issue_Category` | Category of the call: Billing, Tech Support, Retention, General |
+| `Issue_Category` | Billing, Tech Support, Retention, General, or Sales |
 | `Call_Duration_Seconds` | Total call handling time in seconds |
-| `Queue_Wait_Time` | Time the caller waited in queue before being answered |
-| `Resolution_Status` | Outcome of the call: Resolved, Escalated, or Dropped |
+| `Queue_Wait_Time` | Time the caller waited before being answered |
+| `Resolution_Status` | Resolved, Escalated, or Dropped |
+| `FCR` | First Call Resolution flag — 1 if resolved without escalation, 0 otherwise |
+
+### `data/agents.csv`
+
+Reference table for the 100 simulated agents.
+
+| Column | Description |
+|---|---|
+| `agent_id` | Agent identifier (A001–A100) |
+| `agent_name` | Randomly generated full name |
+| `department` | Assigned department |
+| `seniority` | Junior, Mid, or Senior |
+| `hire_date` | Simulated hire date |
+
+### `data/categories.csv`
+
+Reference table for the 5 issue categories with SLA and FCR targets.
+
+| Column | Description |
+|---|---|
+| `category_id` | Category identifier (CAT001–CAT005) |
+| `category_name` | Category label |
+| `sla_target_seconds` | Maximum acceptable call duration for SLA compliance |
+| `target_fcr_rate` | Target first call resolution rate for the category |
 
 ---
 
@@ -52,48 +78,46 @@ The main dataset used across all scripts and the dashboard. Contains 50,000 synt
 
 ### `scripts/generate_bpo_data.py`
 
-Generates the synthetic dataset and saves it to `data/bpo_call_center_data.csv`.
+Generates all three datasets and saves them to the `data/` folder.
 
-- Creates 50,000 records spanning 90 days from the current date
-- Simulates 100 agents (A001–A100) across 4 issue categories
-- Each category has a realistic base Average Handling Time (AHT): Billing 180s, Tech Support 420s, Retention 600s, General 140s
-- Injects a deliberate anomaly: a 7-day window where Tech Support drop rates spike to 30% (vs the normal 5%) and 8 randomly selected agents have their call durations inflated by 1.8x
-- Uses fixed random seeds (42) so results are reproducible
+- Creates 50,000 call records across 5 categories with realistic base AHT per category: Billing 180s, Tech Support 420s, Retention 600s, General 140s, Sales 300s
+- Generates 100 agents with randomized names, departments, seniority levels, and hire dates
+- Injects a deliberate anomaly: a 7-day window where Tech Support drop rate spikes from ~5% to ~45% (+40 percentage points), and 8 randomly selected agents have their call durations inflated by 1.8x
+- Adds an `FCR` column — 1 if the call was resolved within 1.5x the category baseline, 0 otherwise
+- Uses fixed random seeds (42) for reproducibility
+- Outputs: `bpo_call_center_data.csv`, `agents.csv`, `categories.csv`
 
 ### `scripts/load_to_mysql.py`
 
-Loads the CSV into a MySQL database.
+Loads all three CSVs into MySQL in dependency order.
 
-- Reads credentials from the `.env` file using `python-dotenv`
-- Connects to a local MySQL instance via SQLAlchemy and PyMySQL
-- Renames CSV columns to match the database schema
-- Loads data into the `call_center_logs` table using `if_exists='replace'`, which drops and recreates the table on each run
+- Reads credentials from `.env` using `python-dotenv`
+- Loads `categories` first, then `agents`, then `call_center_logs` to respect foreign key constraints
+- Uses `if_exists='replace'` so re-runs are clean
+- Temporarily disables foreign key checks during the main table load to avoid constraint errors on replace
 
 ### `scripts/anomaly_detection.py`
 
-Core anomaly detection script using z-score analysis.
+Core anomaly detection using z-score analysis on weekly drop rates.
 
-- Filters records to Tech Support calls only
-- Groups calls by week and calculates the weekly drop rate (proportion of Dropped calls)
-- Computes the mean and standard deviation of the drop rate across all weeks
-- Assigns a z-score to each week; weeks with an absolute z-score above 2 are flagged as anomalies
-- Prints the full weekly table and a separate output showing only the flagged anomaly weeks
+- Filters to Tech Support calls and groups by week
+- Calculates weekly drop rate, mean, and standard deviation across all weeks
+- Flags any week with an absolute z-score above 2 as an anomaly
+- Prints the full weekly table and a separate block showing only flagged weeks
 
 ### `scripts/anomaly_exploration.py`
 
-Exploratory script used during development to inspect the weekly drop rate trend before building the full detection logic.
+Exploratory script for inspecting the weekly drop rate trend before building detection logic.
 
-- Filters to Tech Support calls
-- Groups by week and prints the weekly drop rate in chronological order
-- No anomaly flagging — used for visual inspection of the data
+- Filters to Tech Support, groups by week, and prints drop rates in chronological order
+- No anomaly flagging — used for visual inspection
 
 ### `scripts/validate_anomaly.py`
 
-Validation script to confirm the injected anomaly is present in the data.
+Confirms the injected anomaly is present in the generated data.
 
-- Prints the weekly drop rate for the last 10 weeks of Tech Support data
-- Directly queries the known anomaly window (the 7-day injection period) and prints the resolution distribution for that period
-- Used to verify that `generate_bpo_data.py` injected the anomaly correctly
+- Prints the last 10 weeks of Tech Support drop rates
+- Directly queries the known anomaly window and prints the resolution distribution for that period
 
 ---
 
@@ -101,32 +125,43 @@ Validation script to confirm the injected anomaly is present in the data.
 
 ### `sql/create_tables.sql`
 
-Creates the MySQL database and table schema.
+Creates the normalized MySQL schema with 3 tables.
 
-- Creates the `bpo_project` database
-- Creates the `call_center_logs` table with `call_id` as the primary key
-- Column types match what `load_to_mysql.py` writes
+- `categories` — reference table with SLA targets and FCR targets per category
+- `agents` — reference table with agent metadata
+- `call_center_logs` — main fact table with foreign keys to both reference tables
 
 ### `sql/kpi_queries.sql`
 
-A collection of operational KPI queries for the call center data.
+17 KPI queries covering the full range of call center metrics. Uses JOINs, window functions, and subqueries throughout.
 
-- Total call volume
-- Overall and per-category Average Handling Time (AHT)
-- Overall and per-category drop rate percentage
-- Percentage of calls with queue wait time over 60 seconds
-- Average queue wait time
-- Resolution status distribution as percentages
-- Top 5 agents by call volume
-- Drop rate ranked by agent (to identify underperforming agents)
+| # | Query | Technique |
+|---|---|---|
+| 1 | Total call volume | Aggregate |
+| 2 | Overall AHT | Aggregate |
+| 3 | AHT by category with SLA status | JOIN + CASE |
+| 4 | SLA adherence rate by department | JOIN + conditional aggregate |
+| 5 | Overall FCR rate | Aggregate |
+| 6 | FCR rate by category vs target | JOIN + comparison |
+| 7 | Overall drop rate | Conditional aggregate |
+| 8 | Drop rate by category | GROUP BY |
+| 9 | Resolution status distribution % | Window function (SUM OVER) |
+| 10 | Agent utilization — calls and talk hours | JOIN |
+| 11 | Top 10 agents by call volume | JOIN + ORDER BY |
+| 12 | Agent FCR ranking | Subquery + RANK window function |
+| 13 | Agent drop rate ranking with seniority | Subquery + JOIN + RANK |
+| 14 | Queue wait time analysis | Aggregate + conditional |
+| 15 | Queue wait time by category | JOIN + conditional aggregate |
+| 16 | Monthly call volume with running total | Subquery + SUM OVER |
+| 17 | Agent AHT vs department average | Subquery + JOIN |
 
 ### `sql/anomary_detection.sql`
 
-SQL-based anomaly analysis queries that complement the Python detection script.
+SQL-based anomaly analysis to complement the Python detection script.
 
 - Weekly drop rate across all categories
 - Weekly drop rate filtered to Tech Support only
-- Rolling 3-week average drop rate for Tech Support using a window function — useful for smoothing noise and spotting sustained trends
+- Rolling 3-week average drop rate for Tech Support using a window function — smooths noise and surfaces sustained trends
 
 ---
 
@@ -134,16 +169,16 @@ SQL-based anomaly analysis queries that complement the Python detection script.
 
 ### `dashboard/BPO Call Center Performance Dashboard.pbix`
 
-A Power BI dashboard built on top of the MySQL database and CSV data. It visualizes the key metrics from the SQL KPI queries and surfaces the anomaly detected in the Python scripts.
+A Power BI dashboard built on the MySQL database and CSV data. Visualizes the KPIs from the SQL queries and surfaces the injected anomaly.
 
-The dashboard covers:
+Panels covered:
 
 - **Call Volume** — total calls over time and by category
-- **Average Handling Time** — AHT breakdown by issue category to identify which call types take the longest
-- **Drop Rate** — overall drop rate and weekly trend, with the anomaly week visible as a spike
-- **Queue Wait Time** — distribution of wait times and the percentage of calls exceeding 60 seconds
-- **Resolution Distribution** — proportion of Resolved, Escalated, and Dropped calls
-- **Agent Performance** — top agents by volume and drop rate by agent to identify outliers
+- **Average Handling Time** — AHT by category with SLA target comparison
+- **Drop Rate Trend** — weekly drop rate with the anomaly week visible as a spike
+- **FCR Rate** — actual vs target FCR by department
+- **Queue Wait Time** — distribution and percentage of calls exceeding 60 seconds
+- **Agent Performance** — utilization, FCR ranking, and drop rate by agent
 
 ---
 
@@ -177,13 +212,13 @@ DB_PASSWORD=your_mysql_password
 ### Running the Project
 
 ```bash
-# 1. Generate the dataset
+# 1. Generate all datasets
 python scripts/generate_bpo_data.py
 
-# 2. Create the MySQL table
+# 2. Create the MySQL schema
 # Run sql/create_tables.sql in your MySQL client
 
-# 3. Load data into MySQL
+# 3. Load all tables into MySQL
 python scripts/load_to_mysql.py
 
 # 4. Run anomaly detection
@@ -194,6 +229,6 @@ python scripts/anomaly_detection.py
 
 ## Notes
 
-- Do not open `bpo_call_center_data.csv` in Excel while running any script. Excel locks the file and truncates datetime values, which corrupts the timestamps and breaks the anomaly detection.
+- Do not open any CSV in Excel while running scripts. Excel locks files and truncates datetime values, which corrupts timestamps and breaks anomaly detection.
 - The `.env` file is excluded from version control. Never commit credentials.
-- The anomaly window shifts each time `generate_bpo_data.py` is run because it is calculated relative to the current date.
+- The anomaly window shifts on each run of `generate_bpo_data.py` because it is calculated relative to the current date.
