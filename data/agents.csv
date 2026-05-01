@@ -1,0 +1,101 @@
+agent_id,agent_name,department,seniority,hire_date
+A001,Susan Mcdaniel,Billing,Junior,2024-05-11
+A002,Jacqueline Ward,Retention,Junior,2023-03-01
+A003,Kevin Sanders,Tech Support,Mid,2022-08-28
+A004,Kenneth Gonzalez DDS,Sales,Junior,2023-03-09
+A005,Anthony Adkins,General,Junior,2024-05-19
+A006,Sara Hanson,Billing,Junior,2024-07-24
+A007,Kimberly Anderson,Sales,Mid,2022-11-06
+A008,Michael Baker,Sales,Junior,2021-08-21
+A009,Cameron Mason,Sales,Mid,2022-10-13
+A010,Larry Stein,General,Mid,2023-06-30
+A011,Dennis Mcmillan,Billing,Mid,2024-05-16
+A012,Kathy Bowen,Tech Support,Mid,2025-12-07
+A013,Donna Brown,Retention,Junior,2025-10-09
+A014,Jacob Hill,Tech Support,Senior,2021-08-27
+A015,Mike Harris,Retention,Junior,2025-08-03
+A016,Melanie Lewis,General,Junior,2024-03-14
+A017,David Castaneda,Retention,Mid,2023-05-14
+A018,Jeffrey Hughes,Billing,Mid,2024-08-23
+A019,Kimberly Jones,Sales,Junior,2023-09-15
+A020,Shawn Watson,General,Junior,2022-02-25
+A021,Brian Sullivan,Retention,Senior,2022-11-25
+A022,Adrian Fields,Sales,Senior,2026-03-06
+A023,Denise Miller,Retention,Mid,2021-10-01
+A024,Melissa Durham,Billing,Junior,2022-09-15
+A025,Stacy Johnston,Tech Support,Mid,2024-06-18
+A026,Michael Gonzalez DVM,Billing,Senior,2023-08-28
+A027,Kelly Perez,Billing,Junior,2022-06-07
+A028,Scott Kirby,General,Mid,2022-06-08
+A029,Andrew Morris,Retention,Junior,2024-12-23
+A030,Stephanie Williams,Retention,Junior,2023-04-20
+A031,Danny Weiss,Retention,Mid,2023-06-01
+A032,Stephanie Flores,Billing,Mid,2025-09-20
+A033,Mr. Juan Schneider,Tech Support,Mid,2024-09-10
+A034,Carl Carter,Tech Support,Junior,2025-05-24
+A035,Katherine Garcia,General,Junior,2023-03-20
+A036,Robert Mcdaniel,Sales,Junior,2022-07-29
+A037,Katherine Velasquez,Retention,Senior,2022-09-27
+A038,Scott Mosley,Billing,Junior,2024-11-10
+A039,Terri Lynch,Billing,Senior,2022-10-30
+A040,Matthew Davis,General,Junior,2024-08-11
+A041,Catherine Black,Tech Support,Senior,2024-09-04
+A042,Lauren Martinez,Sales,Senior,2021-06-06
+A043,Shari Everett,Retention,Junior,2022-08-14
+A044,Christopher Hayden,General,Junior,2021-05-17
+A045,Aaron Robertson,General,Junior,2025-10-03
+A046,Jennifer Mcguire,Tech Support,Junior,2023-03-06
+A047,Adam Cook,Sales,Mid,2025-07-31
+A048,Samuel Nelson,Sales,Mid,2022-10-24
+A049,Tracey Meyer,Sales,Junior,2023-05-02
+A050,David Hoover,Tech Support,Senior,2023-04-07
+A051,Desiree Davis,Tech Support,Mid,2024-04-14
+A052,Daniel Moore,Billing,Mid,2023-07-12
+A053,Ashley Torres,Billing,Junior,2023-10-11
+A054,Kenneth Villanueva,Tech Support,Mid,2023-01-29
+A055,Kimberly Baker,General,Mid,2024-03-03
+A056,Curtis Sanders,General,Junior,2024-03-04
+A057,Amanda Smith,General,Mid,2023-10-17
+A058,Victoria Bridges,Sales,Senior,2024-10-29
+A059,Michael Griffin,Billing,Mid,2023-09-15
+A060,Nicole Wilson,Billing,Mid,2025-09-06
+A061,Anthony Smith,Sales,Mid,2023-02-28
+A062,Samantha Scott,Retention,Junior,2021-07-05
+A063,Terry Yoder,General,Junior,2026-01-27
+A064,Ellen Middleton,Billing,Senior,2026-01-01
+A065,Alicia Williamson,Retention,Senior,2024-01-15
+A066,Douglas Stevenson,Tech Support,Mid,2025-01-23
+A067,Gloria Hart,Billing,Senior,2023-10-23
+A068,Dawn Price,Retention,Senior,2025-07-10
+A069,Brendan Valdez,Sales,Mid,2022-05-24
+A070,Tonya Smith,Tech Support,Junior,2024-10-05
+A071,Christopher Smith,Tech Support,Mid,2025-12-15
+A072,Nancy Hester,Sales,Senior,2022-07-13
+A073,Cindy Kim,Sales,Junior,2023-08-28
+A074,Ryan Carter,Billing,Junior,2025-12-21
+A075,Sara Davis,Retention,Senior,2025-12-02
+A076,Eric Rodriguez,Retention,Junior,2024-07-21
+A077,Dr. Mark Hughes,Tech Support,Senior,2026-04-12
+A078,Hunter Parrish,Billing,Junior,2022-05-11
+A079,Jonathan Sullivan,General,Senior,2023-02-20
+A080,Deborah Roberts DVM,Sales,Mid,2025-03-16
+A081,Andrea Williams,Tech Support,Mid,2026-04-07
+A082,Dennis Davis MD,Sales,Junior,2025-04-18
+A083,Kristen Rios,Sales,Senior,2025-08-08
+A084,Brian Meyer,General,Senior,2024-12-14
+A085,Rebecca Ward,Sales,Mid,2024-04-24
+A086,Sandra Stewart,Tech Support,Mid,2026-03-17
+A087,Dr. April Paul,General,Senior,2024-10-08
+A088,Brooke Marquez,Retention,Mid,2022-10-28
+A089,Daniel Wallace,Sales,Mid,2021-06-15
+A090,Alan Hahn,Tech Support,Junior,2023-10-08
+A091,James Farmer PhD,Retention,Junior,2024-08-09
+A092,Dr. Julie Davidson MD,Sales,Junior,2023-04-15
+A093,Patrick Snow DDS,Tech Support,Junior,2021-08-05
+A094,Sarah Perry,Billing,Junior,2025-10-04
+A095,Jessica Sanchez,Billing,Senior,2022-05-08
+A096,Andrea Hamilton,Billing,Mid,2022-02-02
+A097,Danny Vincent,Retention,Mid,2025-10-18
+A098,Joshua Gregory,Tech Support,Mid,2024-02-04
+A099,Sabrina Moses,Sales,Mid,2023-09-17
+A100,Kayla Montgomery,Tech Support,Mid,2024-09-06

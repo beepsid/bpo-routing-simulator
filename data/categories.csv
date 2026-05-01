@@ -1,0 +1,6 @@
+category_id,category_name,sla_target_seconds,target_fcr_rate
+CAT001,Billing,240,0.8
+CAT002,Tech Support,480,0.7
+CAT003,Retention,720,0.65
+CAT004,General,180,0.85
+CAT005,Sales,300,0.75
