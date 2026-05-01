@@ -36,7 +36,7 @@ bpo-routing-simulator/
 
 ### `data/bpo_call_center_data.csv`
 
-The main call log dataset — 50,000 synthetic records spanning 90 days.
+The main call log dataset consist of 50,000 synthetic records spanning 90 days.
 
 | Column | Description |
 |---|---|
@@ -47,7 +47,7 @@ The main call log dataset — 50,000 synthetic records spanning 90 days.
 | `Call_Duration_Seconds` | Total call handling time in seconds |
 | `Queue_Wait_Time` | Time the caller waited before being answered |
 | `Resolution_Status` | Resolved, Escalated, or Dropped |
-| `FCR` | First Call Resolution flag — 1 if resolved without escalation, 0 otherwise |
+| `FCR` | First Call Resolution flag, 1 if resolved without escalation, 0 otherwise |
 
 ### `data/agents.csv`
 
@@ -83,7 +83,7 @@ Generates all three datasets and saves them to the `data/` folder.
 - Creates 50,000 call records across 5 categories with realistic base AHT per category: Billing 180s, Tech Support 420s, Retention 600s, General 140s, Sales 300s
 - Generates 100 agents with randomized names, departments, seniority levels, and hire dates
 - Injects a deliberate anomaly: a 7-day window where Tech Support drop rate spikes from ~5% to ~45% (+40 percentage points), and 8 randomly selected agents have their call durations inflated by 1.8x
-- Adds an `FCR` column — 1 if the call was resolved within 1.5x the category baseline, 0 otherwise
+- Adds an `FCR` column, 1 if the call was resolved within 1.5x the category baseline, 0 otherwise
 - Uses fixed random seeds (42) for reproducibility
 - Outputs: `bpo_call_center_data.csv`, `agents.csv`, `categories.csv`
 
@@ -110,7 +110,7 @@ Core anomaly detection using z-score analysis on weekly drop rates.
 Exploratory script for inspecting the weekly drop rate trend before building detection logic.
 
 - Filters to Tech Support, groups by week, and prints drop rates in chronological order
-- No anomaly flagging — used for visual inspection
+- No anomaly flagging, used for visual inspection
 
 ### `scripts/validate_anomaly.py`
 
@@ -127,9 +127,9 @@ Confirms the injected anomaly is present in the generated data.
 
 Creates the normalized MySQL schema with 3 tables.
 
-- `categories` — reference table with SLA targets and FCR targets per category
-- `agents` — reference table with agent metadata
-- `call_center_logs` — main fact table with foreign keys to both reference tables
+- `categories`: reference table with SLA targets and FCR targets per category
+- `agents`: reference table with agent metadata
+- `call_center_logs`: main fact table with foreign keys to both reference tables
 
 ### `sql/kpi_queries.sql`
 
@@ -146,7 +146,7 @@ Creates the normalized MySQL schema with 3 tables.
 | 7 | Overall drop rate | Conditional aggregate |
 | 8 | Drop rate by category | GROUP BY |
 | 9 | Resolution status distribution % | Window function (SUM OVER) |
-| 10 | Agent utilization — calls and talk hours | JOIN |
+| 10 | Agent utilization: calls and talk hours | JOIN |
 | 11 | Top 10 agents by call volume | JOIN + ORDER BY |
 | 12 | Agent FCR ranking | Subquery + RANK window function |
 | 13 | Agent drop rate ranking with seniority | Subquery + JOIN + RANK |
@@ -161,7 +161,7 @@ SQL-based anomaly analysis to complement the Python detection script.
 
 - Weekly drop rate across all categories
 - Weekly drop rate filtered to Tech Support only
-- Rolling 3-week average drop rate for Tech Support using a window function — smooths noise and surfaces sustained trends
+- Rolling 3-week average drop rate for Tech Support using a window function, smooths noise and surfaces sustained trends
 
 ---
 
@@ -173,12 +173,12 @@ A Power BI dashboard built on the MySQL database and CSV data. Visualizes the KP
 
 Panels covered:
 
-- **Call Volume** — total calls over time and by category
-- **Average Handling Time** — AHT by category with SLA target comparison
-- **Drop Rate Trend** — weekly drop rate with the anomaly week visible as a spike
-- **FCR Rate** — actual vs target FCR by department
-- **Queue Wait Time** — distribution and percentage of calls exceeding 60 seconds
-- **Agent Performance** — utilization, FCR ranking, and drop rate by agent
+- **Call Volume**: total calls over time and by category
+- **Average Handling Time**: AHT by category with SLA target comparison
+- **Drop Rate Trend**: weekly drop rate with the anomaly week visible as a spike
+- **FCR Rate**: actual vs target FCR by department
+- **Queue Wait Time**: distribution and percentage of calls exceeding 60 seconds
+- **Agent Performance**: utilization, FCR ranking, and drop rate by agent
 
 ---
 
