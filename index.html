@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BPO Call Center Analytics</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0f1117;
+      --surface:   #1a1d27;
+      --border:    #2a2d3a;
+      --accent:    #4f8ef7;
+      --accent2:   #7c5cbf;
+      --text:      #e2e4ed;
+      --muted:     #8b8fa8;
+      --radius:    12px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      line-height: 1.6;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(15,17,23,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 60px;
+    }
+    nav .logo {
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.04em;
+      color: var(--accent);
+    }
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 2rem;
+    }
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s;
+    }
+    nav a:hover { color: var(--text); }
+
+    /* ── HERO ── */
+    .hero {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 6rem 2rem 4rem;
+      text-align: center;
+    }
+    .hero .badge {
+      display: inline-block;
+      background: rgba(79,142,247,0.12);
+      color: var(--accent);
+      border: 1px solid rgba(79,142,247,0.3);
+      border-radius: 999px;
+      padding: 0.25rem 0.9rem;
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 1.2rem;
+    }
+    .hero h1 span {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 600px;
+      margin: 0 auto 2rem;
+    }
+    .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-bottom: 2.5rem;
+    }
+    .tag {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.3rem 0.75rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      display: inline-block;
+      padding: 0.65rem 1.4rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn:hover { opacity: 0.85; transform: translateY(-1px); }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-outline {
+      border: 1px solid var(--border);
+      color: var(--text);
+      background: transparent;
+    }
+
+    /* ── SECTIONS ── */
+    section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+    }
+    .section-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+    .section-title {
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+    .section-sub {
+      color: var(--muted);
+      font-size: 0.95rem;
+      max-width: 560px;
+      margin-bottom: 2.5rem;
+    }
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0 2rem;
+    }
+
+    /* ── STATS ROW ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+      margin-bottom: 3rem;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.4rem 1.2rem;
+      text-align: center;
+    }
+    .stat-card .value {
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 0.3rem;
+    }
+    .stat-card .label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── DASHBOARD EMBED ── */
+    .embed-wrapper {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .embed-wrapper iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+      display: block;
+    }
+    .embed-placeholder {
+      height: 600px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      color: var(--muted);
+      text-align: center;
+      padding: 2rem;
+    }
+    .embed-placeholder .icon {
+      font-size: 3rem;
+      opacity: 0.3;
+    }
+    .embed-placeholder p { font-size: 0.9rem; max-width: 400px; }
+    .embed-placeholder code {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.2rem 0.5rem;
+      font-size: 0.8rem;
+      color: var(--accent);
+    }
+
+    /* ── IMAGE GRID ── */
+    .img-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.25rem;
+    }
+    .img-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color 0.2s, transform 0.2s;
+      cursor: pointer;
+    }
+    .img-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-3px);
+    }
+    .img-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      display: block;
+    }
+    .img-card .img-label {
+      padding: 0.75rem 1rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── PIPELINE ── */
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      position: relative;
+    }
+    .pipe-step {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.4rem 1.2rem;
+    }
+    .pipe-step .step-num {
+      font-size: 0.7rem;
+      color: var(--accent);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    .pipe-step .step-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+    .pipe-step .step-desc {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    /* ── ANOMALY CALLOUT ── */
+    .anomaly-box {
+      background: rgba(124,92,191,0.08);
+      border: 1px solid rgba(124,92,191,0.3);
+      border-radius: var(--radius);
+      padding: 1.8rem 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: center;
+    }
+    @media (max-width: 640px) {
+      .anomaly-box { grid-template-columns: 1fr; }
+    }
+    .anomaly-box h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+      color: #a78bfa;
+    }
+    .anomaly-box p { font-size: 0.88rem; color: var(--muted); line-height: 1.7; }
+    .anomaly-stats { display: flex; flex-direction: column; gap: 0.75rem; }
+    .anomaly-stat {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0,0,0,0.2);
+      border-radius: 8px;
+      padding: 0.6rem 1rem;
+      font-size: 0.85rem;
+    }
+    .anomaly-stat .val { font-weight: 700; color: #a78bfa; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      text-align: center;
+      padding: 2rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+
+    /* ── LIGHTBOX ── */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox img {
+      max-width: 90vw;
+      max-height: 85vh;
+      border-radius: var(--radius);
+      object-fit: contain;
+    }
+    .lightbox-close {
+      position: absolute;
+      top: 1.2rem;
+      right: 1.5rem;
+      font-size: 1.8rem;
+      color: var(--muted);
+      cursor: pointer;
+      background: none;
+      border: none;
+      line-height: 1;
+    }
+    .lightbox-close:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <span class="logo">BPO Analytics</span>
+  <ul>
+    <li><a href="#dashboard">Dashboard</a></li>
+    <li><a href="#visuals">Visuals</a></li>
+    <li><a href="#pipeline">Pipeline</a></li>
+    <li><a href="#anomaly">Anomaly</a></li>
+    <li><a href="https://github.com/beepsid/bpo-routing-simulator" target="_blank">GitHub</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="badge">Data Analytics Project</div>
+  <h1>BPO Call Center<br><span>Performance Analytics</span></h1>
+  <p>
+    End-to-end analytics pipeline simulating a real-world BPO call center
+    from synthetic data generation to MySQL ingestion, KPI analysis, anomaly detection,
+    and an interactive Power BI dashboard.
+  </p>
+  <div class="hero-tags">
+    <span class="tag">Python</span>
+    <span class="tag">MySQL</span>
+    <span class="tag">Power BI</span>
+    <span class="tag">Pandas</span>
+    <span class="tag">NumPy</span>
+    <span class="tag">SQLAlchemy</span>
+    <span class="tag">Z-Score Detection</span>
+    <span class="tag">ETL Pipeline</span>
+  </div>
+  <div class="hero-actions">
+    <a href="#dashboard" class="btn btn-primary">View Dashboard</a>
+    <a href="https://github.com/beepsid/bpo-routing-simulator" target="_blank" class="btn btn-outline">View on GitHub</a>
+  </div>
+</div>
+
+<hr class="divider" />
+
+<!-- STATS -->
+<section id="stats">
+  <div class="stats">
+    <div class="stat-card">
+      <div class="value">50K</div>
+      <div class="label">Call Records</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">100</div>
+      <div class="label">Agents</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">5</div>
+      <div class="label">Departments</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">17</div>
+      <div class="label">SQL Queries</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">90</div>
+      <div class="label">Days of Data</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">70%</div>
+      <div class="label">Overall FCR Rate</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- DASHBOARD EMBED -->
+<section id="dashboard">
+  <div class="section-label">Dashboard Image</div>
+  <h2 class="section-title">Power BI Report</h2>
+  <p class="section-sub">
+    Dashboard image covering call volume trends, SLA adherence, agent performance,
+    FCR rates, and drop-call anomaly detection.
+  </p>
+
+  <div class="embed-wrapper" onclick="openLightbox('images/powerbi image.png')" style="cursor:zoom-in;">
+    <img
+      src="images/powerbi image.png"
+      alt="Power BI Dashboard Screenshot"
+      style="width:100%; display:block; height:600px; object-fit:cover; object-position:top;"
+    />
+    <div style="
+      padding: 0.75rem 1.2rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    ">
+      <span style="color:var(--accent);">&#9654;</span>
+      Power BI Desktop; BPO Call Center Performance dashboard image&nbsp;&middot;&nbsp; Click to expand
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- VISUALS -->
+<section id="visuals">
+  <div class="section-label">Query Results</div>
+  <h2 class="section-title">KPI Snapshots</h2>
+  <p class="section-sub">
+    Screenshots of key metrics pulled directly from MySQL using the KPI query suite.
+    Click any image to expand.
+  </p>
+
+  <div class="img-grid">
+    <div class="img-card" onclick="openLightbox('images/total_logs.png')">
+      <img src="images/total_logs.png" alt="Total Call Logs" />
+      <div class="img-label">Total Call Volume</div>
+    </div>
+    <div class="img-card" onclick="openLightbox('images/average_aht.png')">
+      <img src="images/average_aht.png" alt="Average AHT" />
+      <div class="img-label">Average Handling Time</div>
+    </div>
+    <div class="img-card" onclick="openLightbox('images/aht by category.png')">
+      <img src="images/aht by category.png" alt="AHT by Category" />
+      <div class="img-label">AHT by Category</div>
+    </div>
+    <div class="img-card" onclick="openLightbox('images/drop rate by category.png')">
+      <img src="images/drop rate by category.png" alt="Drop Rate by Category" />
+      <div class="img-label">Drop Rate by Category</div>
+    </div>
+    <div class="img-card" onclick="openLightbox('images/resolution percentage.png')">
+      <img src="images/resolution percentage.png" alt="Resolution Distribution" />
+      <div class="img-label">Resolution Status Distribution</div>
+    </div>
+    <div class="img-card" onclick="openLightbox('images/longer queue wait time.png')">
+      <img src="images/longer queue wait time.png" alt="Queue Wait Time" />
+      <div class="img-label">Queue Wait Time Analysis</div>
+    </div>
+    <div class="img-card" onclick="openLightbox('images/weekly drop rate.png')">
+      <img src="images/weekly drop rate.png" alt="Weekly Drop Rate" />
+      <div class="img-label">Weekly Drop Rate Trend</div>
+    </div>
+    <div class="img-card" onclick="openLightbox('images/rolling average drop rate.png')">
+      <img src="images/rolling average drop rate.png" alt="Rolling Average Drop Rate" />
+      <div class="img-label">Rolling Average Drop Rate</div>
+    </div>
+    <div class="img-card" onclick="openLightbox('images/powerbi image.png')">
+      <img src="images/powerbi image.png" alt="Power BI Dashboard" />
+      <div class="img-label">Power BI Dashboard Overview</div>
+    </div>
+    <div class="img-card" onclick="openLightbox('images/call_center_log.png')">
+      <img src="images/call_center_log.png" alt="Call Center Log" />
+      <div class="img-label">Call Center Log Sample</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- PIPELINE -->
+<section id="pipeline">
+  <div class="section-label">Architecture</div>
+  <h2 class="section-title">ETL Pipeline</h2>
+  <p class="section-sub">
+    Fully automated pipeline from raw simulation to dashboard with zero manual processing.
+  </p>
+
+  <div class="pipeline">
+    <div class="pipe-step">
+      <div class="step-num">Step 01</div>
+      <div class="step-title">Data Generation</div>
+      <div class="step-desc">Python simulation engine generates 50,000 realistic call records with configurable agent behavior and injected anomalies.</div>
+    </div>
+    <div class="pipe-step">
+      <div class="step-num">Step 02</div>
+      <div class="step-title">Schema Design</div>
+      <div class="step-desc">Normalized MySQL schema with 3 relational tables...call_center_logs, agents, and categories, linked by foreign keys.</div>
+    </div>
+    <div class="pipe-step">
+      <div class="step-num">Step 03</div>
+      <div class="step-title">MySQL Ingestion</div>
+      <div class="step-desc">SQLAlchemy ETL script loads all tables in dependency order with credential management via .env.</div>
+    </div>
+    <div class="pipe-step">
+      <div class="step-num">Step 04</div>
+      <div class="step-title">KPI Analysis</div>
+      <div class="step-desc">17 SQL queries using JOINs, window functions, and subqueries extract AHT, FCR rate, SLA adherence, and agent utilization.</div>
+    </div>
+    <div class="pipe-step">
+      <div class="step-num">Step 05</div>
+      <div class="step-title">Anomaly Detection</div>
+      <div class="step-desc">Z-score analysis on weekly Tech Support drop rates surfaces the injected +40% anomaly window automatically.</div>
+    </div>
+    <div class="pipe-step">
+      <div class="step-num">Step 06</div>
+      <div class="step-title">Dashboard</div>
+      <div class="step-desc">Power BI dashboard with 6 KPI panels visualizes all metrics and highlights the anomaly for management-level review.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ANOMALY -->
+<section id="anomaly">
+  <div class="section-label">Anomaly Detection</div>
+  <h2 class="section-title">Injected Incident Investigation</h2>
+  <p class="section-sub">
+    A deliberate anomaly was injected into the Tech Support data to simulate a real-world incident.
+  </p>
+
+  <div class="anomaly-box">
+    <div>
+      <h3>What was injected</h3>
+      <p>
+        During a 7-day window, the Tech Support drop rate was spiked from a baseline of ~5%
+        to ~45%, a +40 percentage point increase. Eight agents were also assigned inflated
+        call durations (1.8x normal) to simulate degraded performance.
+      </p>
+      <br />
+      <h3>How it was detected</h3>
+      <p>
+        Weekly drop rates were grouped and a z-score was calculated for each week.
+        Any week with an absolute z-score above 2 was flagged as an anomaly.
+        The injected week returned a z-score of ~2.79, successfully surfacing the incident.
+        SQL rolling averages confirmed the sustained nature of the spike.
+      </p>
+    </div>
+    <div class="anomaly-stats">
+      <div class="anomaly-stat">
+        <span>Baseline drop rate</span>
+        <span class="val">~5%</span>
+      </div>
+      <div class="anomaly-stat">
+        <span>Anomaly drop rate</span>
+        <span class="val">~45%</span>
+      </div>
+      <div class="anomaly-stat">
+        <span>Z-score</span>
+        <span class="val">2.79</span>
+      </div>
+      <div class="anomaly-stat">
+        <span>Anomaly window</span>
+        <span class="val">7 days</span>
+      </div>
+      <div class="anomaly-stat">
+        <span>Agents affected</span>
+        <span class="val">8</span>
+      </div>
+      <div class="anomaly-stat">
+        <span>Detection threshold</span>
+        <span class="val">|z| &gt; 2</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- FOOTER -->
+<footer>
+  <p>
+    Built with Python, MySQL, and Power BI &mdash;
+    <a href="https://github.com/beepsid/bpo-routing-simulator" target="_blank">View source on GitHub</a>
+  </p>
+</footer>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+  <img id="lightbox-img" src="" alt="" />
+</div>
+
+<script>
+  function openLightbox(src) {
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox').classList.add('open');
+  }
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeLightbox();
+  });
+</script>
+
+</body>
+</html>
